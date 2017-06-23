@@ -22,15 +22,46 @@ LED_STRIP      = ws.WS2811_STRIP_GRB   # Type de matrice et ordre des couleurs (
     =======================================
 """
 
-def displayMatrix(start, matrix):
+""" FONCTION : displayMatrix
+	========================
+	Permet d'afficher une matrice en allumant les LED une a une
+	
+	PARAMETRES :
+	============
+	offset : numero de la colonne de depart (/!\ bug: ne fonctionne qu'avec les colonnes paires)
+	matrix : matrice ligne 1D contenant les informations de toutes les LED a afficher une a une
+"""
+def displayMatrix(offset, matrix):
 		
-	offset = 8*start
+	offset = 8*offset
 		
 	for i in range(0, len(matrix)):
 		if matrix[i] > 0 and matrix[i] <= 255:
 			matrix[i] = Color(200,200,200)
 								
 		strip.setPixelColor(i + offset, matrix[i])
+		
+	strip.show()
+		
+""" FONCTION : scroll
+    =================
+    Permet de faire defiler une matrice trop grande pour etre affichee sur la matrice LED 
+    
+    PARAMETRES:  
+    ===========
+    offset : numero de la colonne de depart (/!\ bug: ne fonctionne qu'avec les colonnes paires)
+    matrix : matrice ligne 1D contenant les informations de toutes les LED a afficher une a une
+"""
+def scroll(offset, matrix, speed = 1):	
+	matrixBuffer = matrix
+	
+	while len(matrixBuffer) > 8:
+		del matrixBuffer[:16]
+	
+		displayMatrix(offset, matrixBuffer)
+	
+		print matrixBuffer
+		time.sleep(speed)
 			
 def twitterLogo():
 	
@@ -58,13 +89,20 @@ def matrixToLine(matrix):
 	
 	return matrix.tolist()
 	
-def textToMatrix(text):
-	image = Image.new("L", (22, 8), "black")
+def displayText(offset, text, icone = True):
+	# Definition du texte et de sa taille :
+	font = ImageFont.truetype("fonts/TINY_FONT.ttf", 5)
+	wText, hText = font.getsize(text)
+	# Creation d'une image de la taille du texte
+	image = Image.new("L", (wText, 8), "black")
 	draw = ImageDraw.Draw(image)
-	tiny_font = ImageFont.truetype("fonts/TINY_FONT.ttf", 5)
-	draw.text((0, 1), text, fill="white", font=tiny_font)
-				
-	return np.array(image)
+	draw.text((0, 1), text, fill="white", font=font)
+	# Retourne une matrice bitmap si le text est petit / sinon fait defiler le text
+	maxLED = 22 if icone else 32
+	if wText <= maxLED:
+		return displayMatrix(offset, matrixToLine(np.array(image)))
+	else:
+		return scroll(offset, matrixToLine(np.array(image)))
 
 """ PROGRAMME PRINCIPAL
     ===================
@@ -78,6 +116,5 @@ if __name__ == '__main__':
 	strip.begin()
 	
 	displayMatrix(0, twitterLogo())
-	displayMatrix(10, matrixToLine(textToMatrix("Cerise")))
-	
-	strip.show()
+	displayText(10, "Cerise gout pelican")
+
