@@ -54,6 +54,7 @@ def displayMatrix(offset, matrix):
     ===========
     offset : numero de la colonne de depart (/!\ bug: ne fonctionne qu'avec les colonnes paires)
     matrix : matrice ligne 1D contenant les informations de toutes les LED a afficher une a une
+    speed  : temps d'actualisation entre chaque déplacement de lettre
 """
 def scroll(offset, matrix, speed = 1):	
 	
@@ -63,8 +64,13 @@ def scroll(offset, matrix, speed = 1):
 		matrix += matrix[:16]
 		del matrix[:16]
 	
-		time.sleep(50/1000.0)
+		time.sleep(speed)
 			
+
+""" FONCTION : twitterLogo
+    ======================
+    Permet d'afficher le logo de Twitter en RGB sur un bloc de 8x8 à gauche de la matrice LED
+"""			
 def twitterLogo():
 	
 	logo = np.array([[Color( 87,172,238),Color(  0,  0,  0),Color(  0,  0,  0),Color(  0,  0,  0),Color(  0,  0,  0),Color( 87,172,238),Color(  0,  0,  0),Color(  0,  0,  0)],
@@ -78,6 +84,15 @@ def twitterLogo():
 						
 	return matrixToLine(logo)
 	
+
+""" FONCTION : matrixToLine
+    =======================
+    Permet de transformer une matrice 2D possédant les coordonnées (x,y) en une liste contenant toutes les données de LED adressables de 1 à 256  
+    
+    PARAMETRES:  
+    ===========
+    matrix : matrice ligne 2D possédant les coordonnées (x,y) d'un texte/image
+"""
 def matrixToLine(matrix):
 	# Passage d'une matrice 2D a une ligne en trois etapes
 	# 1. Transpotion
@@ -91,6 +106,17 @@ def matrixToLine(matrix):
 	
 	return matrix.tolist()
 	
+""" FONCTION : displayText
+    ======================
+    Permet de générer une matrice N/B de la taille du texte demmandé à l'aide de PILLOW 
+    
+    PARAMETRES:  
+    ===========
+    offset : numero de la colonne de depart (/!\ bug: ne fonctionne qu'avec les colonnes paires)
+    text   : texte à générer
+    font   : nom de la police d'écriture à mettre dans le dossier fonts/NAME_FONT.ttf
+    icone  : (bool) s'il y a une icone 8x8 présente 
+"""
 def displayText(offset, text, font = "SMALL", icone = True):
 	# Definition du texte et de sa taille :
 	font = ImageFont.truetype("fonts/"+font+"_FONT.ttf", 8)
@@ -104,19 +130,15 @@ def displayText(offset, text, font = "SMALL", icone = True):
 	if wText <= maxLED:
 		return displayMatrix(offset, matrixToLine(np.array(image)))
 	else:
-		return scroll(offset, matrixToLine(np.array(image)), speed = 3)
+		return scroll(offset, matrixToLine(np.array(image)), speed = 0.5)
 
 """ PROGRAMME PRINCIPAL
     ===================
 """
 
-# Main program logic follows:
 if __name__ == '__main__':
-	# Create NeoPixel object with appropriate configuration.
 	strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
-	# Intialize the library (must be called once before other functions).
 	strip.begin()
 	
 	displayMatrix(0, twitterLogo())
-	displayText(10, "This  is a simple hello world with a long long text ! ", font="SMALL")
-
+	displayText(10, "This  is a simple hello world with a very long text ! ", font="SMALL")
