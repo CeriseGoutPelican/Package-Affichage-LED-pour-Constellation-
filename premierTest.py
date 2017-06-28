@@ -10,7 +10,7 @@ from neopixel import *
 
 # Configuration des LED
 LED_COUNT      = 256      # Nombre de LED
-LED_PIN        = 18       # Pin de connection : mettre le pin 12 BCM 18) pour PWM
+LED_PIN        = 21       # Pin de connection : mettre le pin 12 BCM 18) pour PWM
 LED_FREQ_HZ    = 800000   # Frequence du signal en hertz (defaut : 800khz)
 LED_DMA        = 5        # Chaine DMA pour generer le signal (defaut : 5)
 LED_BRIGHTNESS = 15       # Luminosite de 0 a 255
@@ -36,7 +36,7 @@ def displayMatrix(offset, matrix):
 	
 	if(offset % 2 != 0):
 		matrix = oddColumn(matrix)
-			
+
 	offset = 8*offset
 
 	for i in range(0, len(matrix)):
@@ -74,7 +74,7 @@ def scroll(offset, matrix, speed = 0.5):
 					
 		matrix += matrix[:8]
 		del matrix[:8]
-		
+		#~ 
 		time.sleep(speed)
 	
 """ FONCTION : matrixToLine
@@ -111,7 +111,7 @@ def matrixToLine(matrix):
 """
 def displayText(offset, text, font = "SMALL", icone = True, speed = 0.3):
 	# Definition du texte et de sa taille :
-	font = ImageFont.truetype("fonts/"+font+"_FONT.ttf", 8)
+	font = ImageFont.truetype("fonts/"+font+"_FONT.ttf", 7)
 	wText, hText = font.getsize(text)
 	# Creation d'une image de la taille du texte
 	image = Image.new("L", (wText, 8), "black")
@@ -168,6 +168,6 @@ if __name__ == '__main__':
 	strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
 	strip.begin()
 	
-	displayMatrix(0, pngToMatrix("musique"))
-	displayText(8, "Musique ! ", font="SMALL", speed=0.1)
+	displayMatrix(0, pngToMatrix("twitter_oiseau"))
+	displayText(8, "Send nudes ! ", font="SMALL", speed=0.1)
 
