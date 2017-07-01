@@ -17,7 +17,7 @@ La matrice LED possède 8 connexions différentes.
 | ----------- | --------------------------- | ------- | ------------ |
 | **5V**      | Alimentation +5V            | 2       | 5V0          |
 | **GND**     | Terre                       | 6       | GND          |
-| **DIN**     | Entrée données              | 19      | GIO 10       |
+| **DIN**     | Entrée données              | 40      | GIO 21       |
 | 5V          | Alimentation supplémentaire | •       | •            |
 | DIN         | Entrée données              | •       | •            |
 | _5V_        | Sortie                      | •       | •            |
@@ -27,7 +27,22 @@ La matrice LED possède 8 connexions différentes.
 Les **pins en gras** sont obligatoires pour l'affichage. 
 Les _pins en italiques_ permettent de relier la matrice LED à une autre en série et donc de transférer l'information simplement. Les deux pins centraux ne sont utiles que dans le cas où de nombreuses LED sont utilisées à pleine puissance.
 
-_Note:_ Il n'est pas recommandé d'allumer toutes les LED de la matrice en blanc en même temps.
+_Note:_ Il n'est pas recommandé d'allumer toutes les LED de la matrice en blanc en même temps quel que soit le mode de branchement. De plus, il est fortement conseillé d'allimenter le Raspberry Pi ainsi que la matrice LED à l'aide d'une source indépendante afin de ne pas trop tirer sur le pin 5V (ce qui résultera d'une instabilité générale du système). 
 
 ### Configuration
-_En cours de rédaction..._
+Le package ne fonctionne que sur Raspberry Pi et possède deux dépendances qu'il est nécessaire d'installer au préalable :  [rpi_ws281x](https://github.com/jgarff/rpi_ws281x) pour la gestion des LED et [PILLOW](https://github.com/python-pillow/Pillow) pour la génération de texte.
+`$ sudo pip2 install rpi_ws281x`
+`$ sudo pip2 install Pillow`
+
+### Utilisation
+Le package n'a pas de configuration ni d'intelligence particulière, il ne fait qu'attendre un `message Callback` de Constellation pour se mettre à jour avec la syntaxe suivante :
+```python
+DISPLAY_PACKAGE = "ConstellationAffichageLED"
+Constellation.SendMessage(DISPLAY_PACKAGE, "DisplayContent", {"icon":"votreIcone", "text":"Votre texte","time":None,"matrix":None})
+```
+Voici la description des paramètres 
+- `icon` : nom de l'icone au format .jpg 8x8 à afficher à gauche de la matrice. L'image doit être placée dans le dossier ./img avec "Copy if Newer"
+- `text` : texte à afficher à droite de l'icone
+- `time` : à utiliser pour afficher l'affichage comme une notification push pendant le temps spécifié (en secondes) / Mettre None sinon
+- `matrix` : matrice 8x32 avec des truples RGB pour un affichage 100% personnalisé. Prioritaire sur 'icon' et 'text'.
+_Note :_ les attributs `time` et `matrix` sont existants mais non implémantés 
